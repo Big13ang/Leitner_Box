@@ -5,6 +5,7 @@
     border: 0;
     margin: 0;
     padding: 0;
+    font-size: 62.5%;
 }
 
 :root {
@@ -59,6 +60,158 @@
         url('../fonts/woff/IRANSansWeb.woff') format('woff');
 }
 
+a {
+    text-decoration: none;
+}
+
 body {
     font-family: var(--font-iranSans);
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 25% 75%;
+}
+
+#sidebar {
+    background: var(--color-black-primary);
+    height: 100vh;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 4rem;
+    margin: 4rem 0;
+}
+
+.nav-link {
+    color: var(--color-cloud);
+    font-size: 3rem;
+    width: 100%;
+    text-align: center;
+    display: inline-block;
+    padding: 1rem 0;
+    transition: background-color ease 0.7s;
+
+}
+
+.nav-link__active,
+.nav-link:hover {
+    background-color: var(--color-green-primary);
+}
+
+#main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.editor,
+#editor-container {
+    width: 100rem;
+    height: 50rem;
+}
+
+.editor-title {
+    font-size: 5rem;
+    padding: 2.5rem 0;
+}
+
+.ql-header .ql-picker {
+    width: 3rem;
+}
+
+.ql-toolbar.ql-snow {
+    display: flex;
+    gap: 4rem;
+    padding: 1.25rem;
+}
+
+.ql-toolbar.ql-snow .ql-formats {
+    margin-right: 0;
+    display: inline-block;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.ql-editor {
+    font-size: 16px;
+    /* Adjust this value to make the text bigger */
+    line-height: 1.5;
+    /* Optional: Adjust line height for readability */
+}
+
+
+
+.ql-picker-label {
+    width: 13rem;
+    height: 4rem;
+    font-size: 3rem;
+}
+
+/* You can also adjust other styling properties as needed */
+
+
+.ql-picker-options {
+    font-size: 2rem;
+}
+
+.ql-snow.ql-toolbar button,
+.ql-snow .ql-toolbar button {
+    height: 4rem;
+}
+
+.ql-snow .ql-picker.ql-header {
+    width: 18rem;
+    height: 4rem;
+}
+
+.ql-editor.ql-blank::before {
+    font-size: 2rem;
+}
+
+.ql-editor p,
+.ql-editor em,
+.ql-editor strong,
+.ql-editor u {
+    margin: 0;
+    font-size: 2.75rem;
+    /* Remove default margins for paragraphs */
+}
+
+.ql-syntax {
+    font-size: 2.5rem;
+}
+
+.ql-editor h1 {
+    font-size: 3.75rem;
+}
+
+.ql-editor h2 {
+    font-size: 3.25rem;
+}
+
+.btn-container {
+    display: flex;
+    gap: 4rem;
+}
+
+.flip-side-card_btn,
+.save-card_btn {
+    font-size: 4rem;
+    color: var(--color-cloud);
+    background-color: var(--color-black-primary);
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    margin-top: 10rem;
+    transition: all ease 0.4s;
+}
+
+.flip-side-card_btn:hover,
+.save-card_btn:hover {
+    cursor: pointer;
+    background-color: var(--color-green-primary);
 }
