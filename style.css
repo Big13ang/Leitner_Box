@@ -114,6 +114,7 @@ body {
 #editor-container {
     width: 100rem;
     height: 50rem;
+    font-family: var(--font-iranSans) !important;
 }
 
 .editor-title {

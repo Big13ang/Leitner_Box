@@ -92,7 +92,6 @@ class App {
         saveBtn.addEventListener('click', this.#saveCard.bind(this));
         radioBtnGroup.addEventListener('click', this.#setCardType.bind(this));
     }
-
     #setCardType() {
         if (dictationTypeBtn.checked) {
             this.cardContent.type = dictationTypeBtn.value;
@@ -104,16 +103,13 @@ class App {
         if (this.editor.innerHTML === '<p><br></p>') return;
         this.cardContent[this.cardSide] = this.editor.innerHTML;
     }
-
     #clearEditor() {
         this.editor.innerHTML = '';
     }
-
     #renderContent() {
         this.#clearEditor();
         this.editor.innerHTML = this.cardContent[this.cardSide];
     }
-
     #flipCard() {
         this.#saveContent();
         this.cardSide === 'Front' ? this.cardSide = 'Back' : this.cardSide = 'Front';
@@ -124,7 +120,6 @@ class App {
             this.#clearEditor();
         }
     }
-
     #saveCard() {
         this.#saveContent();
         if (
