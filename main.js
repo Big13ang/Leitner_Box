@@ -63,14 +63,14 @@ class DictationCard extends Card {
 // }
 // class App
 class App {
+    cardsList = [[], [], [], [], []];
     quill;
     editor;
-    CardSide = 'Front';
-    frontContent = '';
-    backContent = '';
+    cardSide = 'Front';
+    cardContent = { Front: '', Back: '' };
 
     constructor() {
-        quill = new Quill('#editor-container', {
+        this.quill = new Quill('#editor-container', {
             modules: {
                 toolbar: [
                     [{ header: [1, 2, false] }],
@@ -81,27 +81,56 @@ class App {
             placeholder: 'Compose an epic...',
             theme: 'snow'  // or 'bubble'
         });
-        editor = $.querySelector('.ql-editor');
+        this.editor = $.querySelector('.ql-editor');
+        this.editor.dataset.placeholder = 'Write your content here ...'
 
-        flipSideBtn.addEventListener('click', this.#flipCard);
+        flipSideBtn.addEventListener('click', this.#flipCard.bind(this));
+        saveBtn.addEventListener('click', this.#saveCard.bind(this));
+    }
 
-        saveBtn.addEventListener('click', this.#saveCard);
+    #saveContent() {
+        if (this.editor.innerHTML === '<p><br></p>') return;
+        this.cardContent[this.cardSide] = this.editor.innerHTML;
+    }
+
+    #clearEditor() {
+        this.editor.innerHTML = '';
+    }
+
+    #renderContent() {
+        this.#clearEditor();
+        this.editor.innerHTML = this.cardContent[this.cardSide];
     }
 
     #flipCard() {
-        CardSide === 'Front' ? CardSide = 'Back' : CardSide = 'Front';
+        this.#saveContent();
+        this.cardSide === 'Front' ? this.cardSide = 'Back' : this.cardSide = 'Front';
+        editorTitle.textContent = `${this.cardSide} Side`;
+        if (this.cardContent[this.cardSide] != '') {
+            this.#renderContent();
+        } else {
+            this.#clearEditor();
+        }
     }
 
     #saveCard() {
-        this.CardSide == 'Front' ? frontContent = editor.innerHTML : backContent = editor.innerHTML;
-        console.log(frontContent);
+        this.#saveContent();
+        if (
+            !this.cardContent.Back
+            || !this.cardContent.Front
+            || this.cardContent.Back.length === 0
+            || this.cardContent.Front.length === 0
+        ) return window.alert('one side of the card is empty fill it !!!');
+
+
+        console.log(this.cardContent);
     }
 }
 let app = new App();
 
 
 
-editor.dataset.placeholder = 'Write your content here ...'
+
 
 
 
