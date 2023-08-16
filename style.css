@@ -102,7 +102,7 @@ body {
     background-color: var(--color-green-primary);
 }
 
-#main {
+.add-card {
     display: flex;
     flex-direction: column;
     justify-content: center;

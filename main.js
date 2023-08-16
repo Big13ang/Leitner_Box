@@ -1,5 +1,13 @@
-let quill;
-let editor;
+'use strict';
+
+// Global variables
+const $ = document;
+
+// elements 
+let saveBtn = $.querySelector('.save-card_btn');
+let flipSideBtn = $.querySelector('.flip-side-card_btn');
+let editorTitle = $.querySelector('.editor-title');
+
 // class Card
 class Card {
     id = crypto.randomUUID();
@@ -12,29 +20,29 @@ class Card {
     }
 
     set front(content) {
-        this.#front = content;
+        this._front = content;
     }
 
     get front() {
-        return this.#front;
+        return this._front;
     }
 
 
     set back(content) {
-        this.#back = content;
+        this._back = content;
     }
 
     get back() {
-        return this.#back;
+        return this._back;
     }
 
 
     set tags(tagArray) {
-        this.#tags = tagArray;
+        this._tags = tagArray;
     }
 
     get tags() {
-        return this.#tags;
+        return this._tags;
     }
 }
 
@@ -49,9 +57,18 @@ class DictationCard extends Card {
         super('Dictation', front, back, tags);
     }
 }
+// class Progress
+// class Progress {
 
+// }
 // class App
 class App {
+    quill;
+    editor;
+    CardSide = 'Front';
+    frontContent = '';
+    backContent = '';
+
     constructor() {
         quill = new Quill('#editor-container', {
             modules: {
@@ -64,23 +81,28 @@ class App {
             placeholder: 'Compose an epic...',
             theme: 'snow'  // or 'bubble'
         });
-        editor = document.querySelector('.ql-editor');
+        editor = $.querySelector('.ql-editor');
+
+        flipSideBtn.addEventListener('click', this.#flipCard);
+
+        saveBtn.addEventListener('click', this.#saveCard);
+    }
+
+    #flipCard() {
+        CardSide === 'Front' ? CardSide = 'Back' : CardSide = 'Front';
+    }
+
+    #saveCard() {
+        this.CardSide == 'Front' ? frontContent = editor.innerHTML : backContent = editor.innerHTML;
+        console.log(frontContent);
     }
 }
-// class Progress
-// class Simple_Card
-// class Dictation_Card
+let app = new App();
 
 
-let text = '';
-
-let saveBtn = document.querySelector('.save-card_btn');
-let flipSideBtn = document.querySelector('.flip-side-card_btn');
 
 editor.dataset.placeholder = 'Write your content here ...'
 
-btn.addEventListener('click', () => {
-    text = editor.innerHTML;
-})
+
 
 
