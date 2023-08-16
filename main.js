@@ -77,7 +77,8 @@ class App {
                 toolbar: [
                     [{ header: [1, 2, false] }],
                     ['bold', 'italic', 'underline'],
-                    ['image', 'code-block']
+                    ['image', 'code-block'],
+                    [{ 'align': [] },{ 'direction': 'rtl' }]
                 ]
             },
             placeholder: 'Compose an epic...',

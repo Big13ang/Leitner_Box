@@ -155,7 +155,6 @@ body {
 
 /* You can also adjust other styling properties as needed */
 
-
 .ql-picker-options {
     font-size: 2rem;
 }
@@ -173,6 +172,20 @@ body {
 .ql-editor.ql-blank::before {
     font-size: 2rem;
 }
+
+
+.ql-snow .ql-icon-picker .ql-picker-item {
+    height: 4rem;
+    width: 4rem;
+}
+
+
+.ql-align.ql-picker.ql-icon-picker {
+    width: 4.5rem;
+    height: 4.5rem;
+}
+
+
 
 .ql-editor p,
 .ql-editor em,
