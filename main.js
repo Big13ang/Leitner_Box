@@ -7,6 +7,8 @@ const $ = document;
 let saveBtn = $.querySelector('.save-card_btn');
 let flipSideBtn = $.querySelector('.flip-side-card_btn');
 let editorTitle = $.querySelector('.editor-title');
+let simpleRadioBtn = $.querySelector('#simple-card');
+let dictationRadioBtn = $.querySelector('#dictation-card');
 
 // class Card
 class Card {
@@ -67,7 +69,7 @@ class App {
     quill;
     editor;
     cardSide = 'Front';
-    cardContent = { Front: '', Back: '' };
+    cardContent = { type: '', Front: '', Back: '' };
 
     constructor() {
         this.quill = new Quill('#editor-container', {
@@ -121,7 +123,6 @@ class App {
             || this.cardContent.Back.length === 0
             || this.cardContent.Front.length === 0
         ) return window.alert('one side of the card is empty fill it !!!');
-
 
         console.log(this.cardContent);
     }
