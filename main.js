@@ -7,8 +7,9 @@ const $ = document;
 let saveBtn = $.querySelector('.save-card_btn');
 let flipSideBtn = $.querySelector('.flip-side-card_btn');
 let editorTitle = $.querySelector('.editor-title');
-let simpleRadioBtn = $.querySelector('#simple-card');
-let dictationRadioBtn = $.querySelector('#dictation-card');
+let simpleTypeBtn = $.querySelector('#simple-card');
+let dictationTypeBtn = $.querySelector('#dictation-card');
+let radioBtnGroup = $.querySelector('.type-radio-group');
 
 // class Card
 class Card {
@@ -69,7 +70,7 @@ class App {
     quill;
     editor;
     cardSide = 'Front';
-    cardContent = { type: '', Front: '', Back: '' };
+    cardContent = { type: 'simple', Front: '', Back: '' };
 
     constructor() {
         this.quill = new Quill('#editor-container', {
@@ -78,7 +79,7 @@ class App {
                     [{ header: [1, 2, false] }],
                     ['bold', 'italic', 'underline'],
                     ['image', 'code-block'],
-                    [{ 'align': [] },{ 'direction': 'rtl' }]
+                    [{ 'align': [] }, { 'direction': 'rtl' }]
                 ]
             },
             placeholder: 'Compose an epic...',
@@ -89,8 +90,16 @@ class App {
 
         flipSideBtn.addEventListener('click', this.#flipCard.bind(this));
         saveBtn.addEventListener('click', this.#saveCard.bind(this));
+        radioBtnGroup.addEventListener('click', this.#setCardType.bind(this));
     }
 
+    #setCardType() {
+        if (dictationTypeBtn.checked) {
+            this.cardContent.type = dictationTypeBtn.value;
+        } else if (simpleTypeBtn.checked) {
+            this.cardContent.type = simpleTypeBtn.value;
+        }
+    }
     #saveContent() {
         if (this.editor.innerHTML === '<p><br></p>') return;
         this.cardContent[this.cardSide] = this.editor.innerHTML;
