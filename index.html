@@ -19,37 +19,14 @@
     <div class="container">
         <aside id="sidebar">
             <nav class="sidebar-nav">
-                <a href="#" class="nav-link nav-link__active">Overview</a>
-                <a href="#" class="nav-link">Add Card</a>
-                <a href="#" class="nav-link">Progreesbar</a>
-                <a href="#" class="nav-link">Info</a>
+                <a href="/" class="nav-link nav-link__active">Overview</a>
+                <a href="/add-card" class="nav-link">Add Card</a>
+                <a href="/progressbar" class="nav-link">Progreesbar</a>
+                <a href="/info" class="nav-link">Info</a>
             </nav>
         </aside>
         <main id="main">
-            <div class="add-card">
-                <h2 class="editor-title">Front Side</h2>
-                <div class="editor">
-                    <div id="editor-container"></div>
-                </div>
-                <div></div>
-                <div class="btn-container">
-                    <button class="flip-side-card_btn">Flip side</button>
-                    <fieldset class="type-radio-group">
-                        <legend>Select The Card Type :</legend>
-                        <div>
-                            <input type="radio" class="type-radio-btn" id="simple-card" name="drone" value="simple"
-                                checked />
-                            <label class="type-radio-btn__label" for="simple-card">Simple</label>
-                        </div>
-                        <div>
-                            <input type="radio" class="type-radio-btn" id="dictation-card" name="drone"
-                                value="dictation" />
-                            <label class="type-radio-btn__label" for="dictation-card">Dictation</label>
-                        </div>
-                    </fieldset>
-                    <button class="save-card_btn">Save</button>
-                </div>
-            </div>
+
         </main>
     </div>
 
@@ -70,6 +47,7 @@
     <script src='//cdn.quilljs.com/1.3.6/quill.js'></script>
     <script src="./script.js"></script>
 
+    <script src="js/router.js"></script>
     <script src="main.js"></script>
 </body>
 

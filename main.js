@@ -15,11 +15,13 @@ let radioBtnGroup = $.querySelector('.type-radio-group');
 class Card {
     id = crypto.randomUUID();
     date = new Date();
-    constructor(type, front = "", back = "", tags = []) {
+    constructor(type, front = "", back = "", tags = [], interval = 1, repetitions = 0) {
         this.type = type;
         this.front = front;
         this.back = back;
         this.tags = tags;
+        this.interval = interval;
+        this.repetitions = repetitions;
     }
 
     set front(content) {
@@ -129,7 +131,17 @@ class App {
             || this.cardContent.Front.length === 0
         ) return window.alert('one side of the card is empty fill it !!!');
 
-        console.log(this.cardContent);
+        let newCard;
+        if (this.cardContent.type === 'simple') {
+            newCard = new SimpleCard(this.cardContent.Front, this.cardContent.Back);
+        } else if (this.cardContent.type === 'dictation') {
+            newCard = new DictationCard(this.cardContent.Front, this.cardContent.Back);
+        }
+        this.cardsList[newCard.repetitions].push(newCard);
+
+        console.log(this.cardsList);
+        this.#clearEditor();
+        this.cardContent = { type: 'simple', Front: '', Back: '' };
     }
 }
 let app = new App();
