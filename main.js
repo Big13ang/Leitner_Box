@@ -66,6 +66,68 @@ class DictationCard extends Card {
 
 // }
 
+class Router {
+    sideBar;
+    constructor() {
+        this.sideBar = $.querySelector('#sidebar');
+        this.sideBar.addEventListener('click', this.onClickHandler.bind(this));
+    }
+
+    onClickHandler(e) {
+        const { target } = e;
+        if (!target.matches(".nav-link")) return;
+        e.preventDefault();
+        this.urlRoute();
+    }
+
+    urlRoutes = {
+        404: {
+            template: "/pages/404.html",
+            title: "404 | Page not found !"
+        },
+        "/": {
+            template: "/pages/overview.html",
+            title: "Overview"
+        },
+        "/add-card": {
+            template: "/pages/add-card.html",
+            title: "Add new Card"
+        },
+        "/progressbar": {
+            template: "/pages/progressbar.html",
+            title: "Your progress in learning !"
+        },
+        "/info": {
+            template: "/pages/info.html",
+            title: "Application information"
+        }
+    }
+
+    urlRoute(event) {
+        event = event || window.event;
+        event.preventDefault();
+        window.history.pushState({}, "", event.target.href);
+        this.urlLocationHandler();
+    }
+
+    async urlLocationHandler() {
+        const location = window.location.pathname;
+        if (location.length == 0) {
+            location = "/";
+        }
+        const route = this.urlRoutes[location] || this.urlRoutes[404];
+        const html = await fetch(route.template).then(response => response.text());
+        $.getElementById("main").innerHTML = html;
+
+        if (location == "/add-card") {
+            app.initAddCard();
+        }
+        window.onpopstate = this.urlLocationHandler;
+        window.route = this.urlRoute;
+        this.urlLocationHandler();
+    }
+}
+
 class App {
     cardsList = [[], [], [], [], []];
     quill;
@@ -74,6 +136,10 @@ class App {
     cardContent = { type: 'simple', Front: '', Back: '' };
 
     constructor() {
+    }
+
+    initAddCard() {
+        console.log($.querySelector('#editor-container'));
         this.quill = new Quill('#editor-container', {
             modules: {
                 toolbar: [
@@ -152,4 +218,6 @@ class App {
         target.classList.add('nav-link__active');
     }
 }
+
+let router = new Router();
 let app = new App();
