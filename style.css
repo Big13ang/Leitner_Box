@@ -187,11 +187,28 @@ body {
 }
 
 
+.ql-tooltip.ql-editing {
+    font-size: 2.5rem;
+}
+
+.ql-tooltip {
+    font-size: 2.5rem;
+    display: flex;
+    width: 38rem;
+    justify-content: space-around;
+    align-items: center;
+    padding: 1.25rem 2rem;
+}
+
+.ql-snow .ql-tooltip.ql-editing input[type=text] {
+    font-size: inherit;
+}
 
 .ql-editor p,
 .ql-editor em,
 .ql-editor strong,
-.ql-editor u {
+.ql-editor u,
+.ql-editor a {
     margin: 0;
     font-size: 2.75rem;
     /* Remove default margins for paragraphs */
