@@ -1,10 +1,10 @@
-const sideBar = document.querySelector('#sidebar');
+let sideBar = document.querySelector('#sidebar');
 
 sideBar.addEventListener('click', (e) => {
     const { target } = e;
     if (!target.matches(".nav-link")) return;
     e.preventDefault();
-
+    
     urlRoute();
 });
 

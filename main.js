@@ -10,8 +10,9 @@ let editorTitle = $.querySelector('.editor-title');
 let simpleTypeBtn = $.querySelector('#simple-card');
 let dictationTypeBtn = $.querySelector('#dictation-card');
 let radioBtnGroup = $.querySelector('.type-radio-group');
+let sideBarElement = $.querySelector('#sidebar');
+let navLinks = $.querySelectorAll('.nav-link');
 
-// class Card
 class Card {
     id = crypto.randomUUID();
     date = new Date();
@@ -50,13 +51,11 @@ class Card {
         return this._tags;
     }
 }
-
 class SimpleCard extends Card {
     constructor(front, back, tags) {
         super('Simple', front, back, tags);
     }
 }
-
 class DictationCard extends Card {
     constructor(front, back, tags) {
         super('Dictation', front, back, tags);
@@ -66,7 +65,7 @@ class DictationCard extends Card {
 // class Progress {
 
 // }
-// class App
+
 class App {
     cardsList = [[], [], [], [], []];
     quill;
@@ -89,11 +88,12 @@ class App {
         });
         this.editor = $.querySelector('.ql-editor');
         this.editor.dataset.placeholder = 'Write your content here ...'
-
         flipSideBtn.addEventListener('click', this.#flipCard.bind(this));
         saveBtn.addEventListener('click', this.#saveCard.bind(this));
         radioBtnGroup.addEventListener('click', this.#setCardType.bind(this));
+        sideBarElement.addEventListener('click', this.#changeActiveLink.bind(this));
     }
+
     #setCardType() {
         if (dictationTypeBtn.checked) {
             this.cardContent.type = dictationTypeBtn.value;
@@ -143,13 +143,13 @@ class App {
         this.#clearEditor();
         this.cardContent = { type: 'simple', Front: '', Back: '' };
     }
+
+    #changeActiveLink(e) {
+        const { target } = e;
+        if (!target.matches(".nav-link")) return;
+        e.preventDefault()
+        navLinks.forEach(link => link.classList.remove('nav-link__active'));
+        target.classList.add('nav-link__active');
+    }
 }
 let app = new App();
-
-
-
-
-
-
-
-
