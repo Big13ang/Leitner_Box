@@ -4,12 +4,12 @@
 const $ = document;
 
 // elements 
-let saveBtn = $.querySelector('.save-card_btn');
-let flipSideBtn = $.querySelector('.flip-side-card_btn');
-let editorTitle = $.querySelector('.editor-title');
-let simpleTypeBtn = $.querySelector('#simple-card');
-let dictationTypeBtn = $.querySelector('#dictation-card');
-let radioBtnGroup = $.querySelector('.type-radio-group');
+let saveBtn;
+let flipSideBtn;
+let editorTitle;
+let simpleTypeBtn;
+let dictationTypeBtn;
+let radioBtnGroup;
 let sideBarElement = $.querySelector('#sidebar');
 let navLinks = $.querySelectorAll('.nav-link');
 
@@ -66,8 +66,6 @@ class DictationCard extends Card {
 
 // }
 
-
-
 class App {
     cardsList = [[], [], [], [], []];
     quill;
@@ -79,7 +77,17 @@ class App {
     }
 
     initAddCard() {
-        console.log($.querySelector('#editor-container'));
+        // Find Elements
+        const findCardElements = () => {
+            saveBtn = $.querySelector('.save-card_btn');
+            flipSideBtn = $.querySelector('.flip-side-card_btn');
+            editorTitle = $.querySelector('.editor-title');
+            simpleTypeBtn = $.querySelector('#simple-card');
+            dictationTypeBtn = $.querySelector('#dictation-card');
+            radioBtnGroup = $.querySelector('.type-radio-group');
+        }
+        findCardElements();
+        // Add Quill editor to page
         this.quill = new Quill('#editor-container', {
             modules: {
                 toolbar: [
@@ -94,6 +102,7 @@ class App {
         });
         this.editor = $.querySelector('.ql-editor');
         this.editor.dataset.placeholder = 'Write your content here ...'
+        // Set Events
         flipSideBtn.addEventListener('click', this.#flipCard.bind(this));
         saveBtn.addEventListener('click', this.#saveCard.bind(this));
         radioBtnGroup.addEventListener('click', this.#setCardType.bind(this));

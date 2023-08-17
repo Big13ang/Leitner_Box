@@ -1,3 +1,4 @@
+'use strict';
 class Router {
     sideBar;
     constructor() {
@@ -39,10 +40,10 @@ class Router {
         event = event || window.event;
         event.preventDefault();
         window.history.pushState({}, "", event.target.href);
-        this.#urlLocationHandler();
+        this.urlLocationHandler();
     }
 
-    async #urlLocationHandler() {
+    async urlLocationHandler() {
         const location = window.location.pathname;
         if (location.length == 0) {
             location = "/";
@@ -54,10 +55,11 @@ class Router {
         if (location == "/add-card") {
             app.initAddCard();
         }
-        window.onpopstate = this.#urlLocationHandler;
+        window.onpopstate = this.urlLocationHandler;
         window.route = this.#urlRoute;
-        this.#urlLocationHandler();
+        this.urlLocationHandler();
     }
 }
 
 let router = new Router();
+router.urlLocationHandler();
