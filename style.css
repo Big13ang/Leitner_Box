@@ -140,10 +140,12 @@ body {
 
 .ql-editor {
     font-size: 16px;
+    font-family: var(--font-iranSans) !important;
     /* Adjust this value to make the text bigger */
     line-height: 1.5;
     /* Optional: Adjust line height for readability */
 }
+
 
 
 
@@ -226,7 +228,7 @@ body {
 }
 
 .btn-container {
-    margin-top: 8rem;
+    margin-top: 10rem;
     align-items: center;
     display: flex;
     gap: 4rem;
@@ -249,17 +251,22 @@ body {
 }
 
 .type-radio-group {
-    height: 8rem;
+    height: 5.25rem;
     font-size: 3.5rem;
-    gap: 8rem;
+    gap: 3rem;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: center;
+    background-color: var(--color-black-primary);
+    padding: 0.25rem 1.75rem;
+    border-radius: 1rem;
+    color: var(--color-light-blue-secondary);
 }
 
 .type-radio-group div {
     display: flex;
     align-items: center;
+    gap: 1rem;
 }
 
 .type-radio-btn {
@@ -287,8 +294,8 @@ body {
 }
 
 .flip-card-container {
-    width: 80rem;
-    height: 50rem;
+    width: 70rem;
+    height: 45rem;
     perspective: 5000rem;
 }
 
@@ -305,8 +312,8 @@ body {
 .flip-card_front,
 .flip-card_back {
     position: absolute;
-    width: 80rem;
-    height: 50rem;
+    width: 70rem;
+    height: 45rem;
     backface-visibility: hidden;
 }
 
@@ -317,7 +324,7 @@ body {
 .review-tags {
     display: flex;
     flex-wrap: wrap;
-    width: 80rem;
+    width: 70rem;
     justify-content: flex-start;
     margin: 2rem 0.5rem;
 }
