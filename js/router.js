@@ -10,7 +10,7 @@ class Router {
         const { target } = e;
         if (!target.matches(".nav-link")) return;
         e.preventDefault();
-        this.#urlRoute();
+        this.urlRoute();
     }
 
     #urlRoutes = {
@@ -19,8 +19,8 @@ class Router {
             title: "404 | Page not found !"
         },
         "/": {
-            template: "/pages/overview.html",
-            title: "Overview"
+            template: "/pages/review.html",
+            title: "Review"
         },
         "/add-card": {
             template: "/pages/add-card.html",
@@ -36,7 +36,7 @@ class Router {
         }
     }
 
-    #urlRoute(event) {
+    urlRoute(event) {
         event = event || window.event;
         event.preventDefault();
         window.history.pushState({}, "", event.target.href);
@@ -52,14 +52,11 @@ class Router {
         const html = await fetch(route.template).then(response => response.text());
         document.getElementById("main").innerHTML = html;
 
-        if (location == "/add-card") {
+        if (location == "/") {
+
+            app.initReview();
+        } else if (location == "/add-card") {
             app.initAddCard();
         }
-        window.onpopstate = this.urlLocationHandler;
-        window.route = this.#urlRoute;
-        this.urlLocationHandler();
     }
 }
-
-let router = new Router();
-router.urlLocationHandler();
