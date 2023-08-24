@@ -44,22 +44,29 @@ class DictationCard extends Card {
 // }
 
 class App {
-    cardsList = [];
+    cardsList;
     quill;
     editor;
     cardSide = 'Front';
     cardContent = { type: 'simple', Front: '', Back: '' };
+    currentCard;
 
     constructor() {
-        this.cardsList = JSON.parse(localStorage.getItem('cardsList'));
+        this.cardsList = JSON.parse(localStorage.getItem('cardsList')) || [];
     }
 
-    showCard(card) {
-        console.log(card);
-        frontSideEditor.innerHTML = card.front;
-        backSideEditor.innerHTML = card.back;
+    #showCard() {
+        frontSideEditor.innerHTML = this.currentCard.front;
+        backSideEditor.innerHTML = this.currentCard.back;
     }
 
+    #forgotCard() {
+        currentCard
+    }
+
+    #rememberCard() {
+
+    }
 
     initReview() {
         // Find Elements
@@ -88,9 +95,12 @@ class App {
         this.quill.enable(false);
         frontSideEditor = $.querySelector('#flip-card_front').querySelector('.ql-editor');
         backSideEditor = $.querySelector('#flip-card_back').querySelector('.ql-editor');
-        console.log(this.cardsList);
-        this.showCard(this.cardsList[0]);
+
+        this.currentCard = this.cardsList[0];
+        this.#showCard();
         // Set Events
+        reviewForgotBtn.addEventListener('click', this.#forgotCard.bind(this));
+        reviewForgotBtn.addEventListener('click', this.#rememberCard.bind(this));
     }
 
     initAddCard() {
