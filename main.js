@@ -1,5 +1,4 @@
 'use strict';
-
 // Global variables
 const $ = document;
 
@@ -166,6 +165,7 @@ class App {
         this.#saveContent();
         this.cardSide === 'Front' ? this.cardSide = 'Back' : this.cardSide = 'Front';
         editorTitle.textContent = `${this.cardSide} Side`;
+        editorTitle.classList.toggle('back');
         if (this.cardContent[this.cardSide] != '') {
             this.#renderContent();
         } else {

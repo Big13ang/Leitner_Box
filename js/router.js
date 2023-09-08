@@ -48,8 +48,8 @@ class Router {
         if (location.length == 0) {
             location = "/";
         }
-        const route = this.#urlRoutes[location] || this.#urlRoutes[404];
-        const html = await fetch(route.template).then(response => response.text());
+        const { title } = this.#urlRoutes[location] || this.#urlRoutes[404];
+        const html = PAGES[location];
         document.getElementById("main").innerHTML = html;
 
         if (location == "/") {

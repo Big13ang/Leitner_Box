@@ -16,6 +16,7 @@
     --color-black-seconday: #21302e;
     --color-black-tertiary: #293a37;
     /** Green */
+    --color-green-light: #00796b;
     --color-green-primary: #154042;
     --color-green-secondary: #154042;
     --color-green-tertiary: #154042;
@@ -119,6 +120,10 @@ body {
 .editor-title {
     font-size: 3.75rem;
     padding: 2.5rem 0;
+}
+
+.editor-title.back {
+    color: var(--color-green-light);
 }
 
 .ql-header .ql-picker {
