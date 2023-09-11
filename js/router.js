@@ -53,7 +53,6 @@ class Router {
         document.getElementById("main").innerHTML = html;
 
         if (location == "/") {
-
             app.initReview();
         } else if (location == "/add-card") {
             app.initAddCard();
