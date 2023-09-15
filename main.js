@@ -18,7 +18,7 @@ try {
 } catch {
     console.log("nothing")
 }
-const test = async () => console.log(await this.env.TEST_KV.get("really"));
+const test = async () => console.log(await this.env.TEST_KV.get("id"));
 test();
 // Review
 let cardBackSide, cardFrontSide, frontSideEditor, backSideEditor, reviewForgotBtn, reviewRememberBtn;
