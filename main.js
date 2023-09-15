@@ -12,7 +12,7 @@ let radioBtnGroup;
 let sideBarElement = $.querySelector('#sidebar');
 let navLinks = $.querySelectorAll('.nav-link');
 
-console.log(really);
+console.log(TEST_KV.get(really));
 
 // Review
 let cardBackSide, cardFrontSide, frontSideEditor, backSideEditor, reviewForgotBtn, reviewRememberBtn;
