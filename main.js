@@ -12,8 +12,11 @@ let radioBtnGroup;
 let sideBarElement = $.querySelector('#sidebar');
 let navLinks = $.querySelectorAll('.nav-link');
 
+console.log(really);
+
 // Review
 let cardBackSide, cardFrontSide, frontSideEditor, backSideEditor, reviewForgotBtn, reviewRememberBtn;
+
 
 class Card {
     id = crypto.randomUUID();
