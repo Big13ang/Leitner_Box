@@ -12,7 +12,13 @@ let radioBtnGroup;
 let sideBarElement = $.querySelector('#sidebar');
 let navLinks = $.querySelectorAll('.nav-link');
 
-const test = async () => console.log(await this.env.TEST_KV.get(really));
+
+try {
+    console.log(this.env.TEST_KV);
+} catch {
+    console.log("nothing")
+}
+const test = async () => console.log(await this.env.TEST_KV.get("really"));
 test();
 // Review
 let cardBackSide, cardFrontSide, frontSideEditor, backSideEditor, reviewForgotBtn, reviewRememberBtn;
