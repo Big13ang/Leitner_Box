@@ -19,6 +19,10 @@ class Router {
             title: "404 | Page not found !"
         },
         "/": {
+            template: "/pages/auth.html",
+            title: "Authentication"
+        },
+        "/review": {
             template: "/pages/review.html",
             title: "Review"
         },
@@ -51,8 +55,9 @@ class Router {
         const { title } = this.#urlRoutes[location] || this.#urlRoutes[404];
         const html = PAGES[location];
         document.getElementById("main").innerHTML = html;
-
         if (location == "/") {
+            app.initAuth();
+        } else if (location == "/review") {
             app.initReview();
         } else if (location == "/add-card") {
             app.initAddCard();

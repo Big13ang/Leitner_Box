@@ -1,6 +1,6 @@
 const PAGES = {
     '404': `404 Page NOT Found !`,
-    "/": `<div class="review">
+    "/review": `<div class="review">
         <div class="flip-card-container">
             <div class="flip-card">
                 <div id="flip-card_front" class="flip-card_front">Front</div>
@@ -42,4 +42,23 @@ const PAGES = {
     "/info": `<h1>This is the INFO PAGE</h1>`,
 
     "/progressbar": `<h1>This is will be the progressbar</h1>`,
+    "/": `<form class="auth-form">
+    <h2 class="form_title">Login</h2>
+    <div>
+        <label for="user" class="form_label">User :</label>
+        <input name="user" class="form_input form_user-input" type="text" placeholder="Enter your User ..." id="user"
+            class="form_input user">
+    </div>
+    <div>
+        <label for="pass" class="form_label">Pass :</label>
+        <input name="pass" class="form_input form_pass-input" type="text" placeholder="Enter your Pass ..." id="pass"
+            class="form_input user">
+    </div>
+    <div>
+        <button class="form_btn" id="form_btn">Login</button>
+    </div>
+    <div>
+        <a class="form_notice" id="form_notice">Do you wanna <span class="form_notice-text">Register</span>?</a>
+    </div>
+</form>`
 }

@@ -374,3 +374,59 @@ body {
 .review-btn_remember:hover {
     cursor: pointer;
 }
+
+/* authentication-form */
+/* login */
+.auth-form {
+    margin-top: 16rem;
+    font-size: 6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.form_title::first-letter {
+    text-transform: uppercase;
+}
+
+.form_label {
+    font-size: 3.5rem;
+}
+
+.form_input {
+    border: 3px solid #11201e;
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+}
+
+.form_btn {
+    border: 3px solid #11201e;
+    border-radius: 4px;
+    padding: 0.75rem 2rem;
+    transition: all ease-in-out 150ms;
+}
+
+.form_btn::first-letter {
+    text-transform: uppercase;
+}
+
+.form_btn:hover {
+    background: var(--color-green-light);
+    color: var(--color-cloud);
+    cursor: pointer;
+}
+
+.form_notice {
+    transition: all ease-in-out 150ms;
+}
+
+.form_notice:hover {
+    cursor: pointer;
+    color: var(--color-green-light);
+}
+
+.form_notice span {
+    font-size: inherit;
+}
