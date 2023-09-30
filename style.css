@@ -430,3 +430,11 @@ body {
 .form_notice span {
     font-size: inherit;
 }
+
+.d-none {
+    display: none;
+}
+
+.grid-temp-col-1 {
+    grid-template-columns: 1fr;
+}

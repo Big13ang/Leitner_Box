@@ -1,7 +1,6 @@
 'use strict';
 // Global variables
 const $ = document;
-let currentUser;
 
 // elements 
 let authType = "login";
@@ -24,61 +23,50 @@ let navLinks = $.querySelectorAll('.nav-link');
 let cardBackSide, cardFrontSide, frontSideEditor, backSideEditor, reviewForgotBtn, reviewRememberBtn;
 
 class User {
-    static create(user, pass) {
-        const newUser = {
-            user,
-            pass,
-        };
-
+    static async create(user, pass) {
+        const newUser = { user, pass };
         const url = "http://127.0.0.1:3000/api/users";
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newUser),
+            });
 
-        const createUser = async (newUser) => {
-            try {
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(newUser),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log("User created successfully:", data);
-            } catch (error) {
-                console.error("Error creating user:", error);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
+
+            const createdUser = await response.json();
+            console.log("User created successfully:", createdUser);
+            return createdUser;
+        } catch (error) {
+            console.error("Error creating user:", error);
         }
-        createUser(newUser);
     }
-    static get(user, pass) {
-        const url = `http://127.0.0.1:3000/api/users`;
+    static async get(user, pass) {
+        const url = 'http://localhost:3000/api/users';
 
-        const getUser = async () => {
-            try {
-                const headers = new Headers();
-                headers.set("Authorization", "Basic " + btoa(user + ":" + pass));
+        try {
+            const response = await fetch(`${url}?user=${user}&pass=${pass}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
 
-                const response = await fetch(url, {
-                    method: "GET",
-                    headers: headers,
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const userData = await response.json();
-                console.log("User retrieved successfully:", userData);
-            } catch (error) {
-                console.error("Error retrieving user:", error);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch data from the server. Status: ${response.status}`);
             }
-        }
 
-        getUser();
+            const userObj = await response.json();
+            return userObj;
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
     }
 }
 
@@ -94,11 +82,13 @@ class Card {
         this.repetitions = repetitions;
     }
 }
+
 class SimpleCard extends Card {
     constructor(front, back, tags) {
         super('Simple', front, back, tags);
     }
 }
+
 class DictationCard extends Card {
     constructor(front, back, tags) {
         super('Dictation', front, back, tags);
@@ -110,11 +100,22 @@ class App {
     quill;
     editor;
     cardSide = 'Front';
-
     currentCard;
+    currentUser;
 
     constructor() {
-        this.cardsList = JSON.parse(localStorage.getItem('cardsList')) || [];
+        this.cardsList = this.#getFromStorage('cardsList') || [];
+        this.currentCard = this.#getFromStorage('currentUser') || "";
+        if (this.currentCard === "") this.#isNotLoggedIn.bind(this);
+    }
+
+
+    #saveToStorage(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    #getFromStorage(key) {
+        return JSON.parse(localStorage.getItem(key));
     }
 
     #showCard() {
@@ -129,6 +130,11 @@ class App {
 
     #rememberCard() {
 
+    }
+
+    #isNotLoggedIn() {
+        sideBarElement.classList.add('d-none');
+        $.querySelector('container').classList.add("grid-temp-col-1");
     }
 
     initAuth() {
@@ -149,6 +155,10 @@ class App {
         authBtn.addEventListener('click', this.#auth.bind(this));
     }
 
+    #resetAuthForm() {
+        authPassInput.value = authUserInput.value = "";
+    }
+
     #getReverseAuthType() {
         return authType === 'login' ? 'register' : 'login';
     }
@@ -160,15 +170,23 @@ class App {
         authNoticeText.textContent = this.#getReverseAuthType();
     }
 
-    #auth(event) {
+    async #auth(event) {
         event.preventDefault();
         if (authType === 'register') {
-            const newUser = User.create(authUserInput.value, authPassInput.value);
-            return console.log(newUser);
+            const newUser = await User.create(authUserInput.value, authPassInput.value);
+            this.#resetAuthForm();
+            alert(`New user has created`);
+            return;
         }
         if (authType === 'login') {
-            const currentUser = User.get(authUserInput.value, authPassInput.value);
-            return console.log(currentUser);
+            const currentUser = await User.get(authUserInput.value, authPassInput.value);
+            this.#saveToStorage('currentUser', currentUser[0]._id);
+            this.#resetAuthForm();
+            alert(`Your logged in successfully 
+            User: ${currentUser[0].user}`);
+            sideBarElement.classList.remove('d-none');
+            $.querySelector('container').classList.remove("grid-temp-col-1");
+            return;
         }
     }
 
