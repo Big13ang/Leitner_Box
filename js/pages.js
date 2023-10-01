@@ -1,20 +1,22 @@
 const PAGES = {
     '404': `404 Page NOT Found !`,
     "/review": `<div class="review">
-        <div class="flip-card-container">
-            <div class="flip-card">
-                <div id="flip-card_front" class="flip-card_front">Front</div>
-                <div id="flip-card_back" class="flip-card_back">Back</div>
-            </div>
+    <div class="flip-card-container">
+        <div class="flip-card">
+            <div id="flip-card_front" class="flip-card_front">Front</div>
+            <div id="flip-card_back" class="flip-card_back">Back</div>
         </div>
-        <div class="review-tags">
-            <span class="review-tag">#Vocabulary</span>
-            <span class="review-tag">#Grammar</span>
-        </div>
-        <div class="review-btn-container">
-            <button class="review-btn_forgot">Forgot</button>
-            <button class="review-btn_remember">Remember</button>
-        </div>
+    </div>
+    <div class="review-tags">
+        <span class="review-tag">#Vocabulary</span>
+        <span class="review-tag">#Grammar</span>
+    </div>
+
+    <div class="review-btn-container">
+        <button class="review-btn review-btn_forgot">Forgot</button>
+        <button class="review-btn review-btn_again">Again</button>
+        <button class="review-btn review-btn_remember">Remember</button>
+    </div>
     </div>`,
     "/add-card": `<div class="add-card">
                     <h2 class="editor-title" >Front Side</h2>
@@ -37,7 +39,7 @@ const PAGES = {
                             </fieldset>
                             <button class="save-card_btn">Save</button>
                         </div>
-                    </div >`,
+    </div >`,
 
     "/info": `<h1>This is the INFO PAGE</h1>`,
 
@@ -60,5 +62,8 @@ const PAGES = {
     <div>
         <a class="form_notice" id="form_notice">Do you wanna <span class="form_notice-text">Register</span>?</a>
     </div>
-</form>`
+    <div>
+        <button class="form_btn form_logout-btn d-none">Logout</button>
+    </div>
+    </form>`
 }

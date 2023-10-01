@@ -344,8 +344,7 @@ body {
     margin: 0.5rem;
 }
 
-.review-btn_forgot,
-.review-btn_remember {
+.review-btn {
     font-size: 2.75rem;
     color: var(--color-cloud);
     background-color: var(--color-black-primary);
@@ -360,6 +359,14 @@ body {
 
 .review-btn_forgot:hover {
     background-color: rgb(219, 0, 22);
+}
+
+.review-btn_again {
+    background-color: #056edf;
+}
+
+.review-btn_again:hover {
+    background-color: #258eff;
 }
 
 .review-btn_remember {
@@ -416,6 +423,11 @@ body {
     background: var(--color-green-light);
     color: var(--color-cloud);
     cursor: pointer;
+}
+
+.form_logout-btn:hover {
+    background: rgb(140, 38, 48);
+    ;
 }
 
 .form_notice {

@@ -58,7 +58,7 @@ class Router {
         if (location == "/") {
             app.initAuth();
         } else if (location == "/review") {
-            app.initReview();
+            await app.initReview();
         } else if (location == "/add-card") {
             app.initAddCard();
         }

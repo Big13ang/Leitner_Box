@@ -1,6 +1,8 @@
 'use strict';
 // Global variables
 const $ = document;
+let sideBarElement = $.querySelector('#sidebar');
+let appContainer = $.querySelector('.container');
 
 // elements 
 let authType = "login";
@@ -16,11 +18,11 @@ let editorTitle;
 let simpleTypeBtn;
 let dictationTypeBtn;
 let radioBtnGroup;
-let sideBarElement = $.querySelector('#sidebar');
+let logOutBtn;
 let navLinks = $.querySelectorAll('.nav-link');
 
 // Review
-let cardBackSide, cardFrontSide, frontSideEditor, backSideEditor, reviewForgotBtn, reviewRememberBtn;
+let cardbackSide, cardfrontSide, frontSideEditor, backSideEditor, reviewForgotBtn, reviewAgainBtn, reviewRememberBtn;
 
 class User {
     static async create(user, pass) {
@@ -68,11 +70,33 @@ class User {
             throw error;
         }
     }
+
+    static async getCards(currentUserId) {
+        const url = `http://localhost:3000/api/users/${currentUserId}/cards`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch data from the server. Status: ${response.status}`);
+            }
+
+            const userCards = await response.json();
+            return userCards;
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    }
 }
 
 class Card {
-    id = crypto.randomUUID();
-    date = new Date();
+    date;
     constructor(type, front = "", back = "", tags = [], interval = 0, repetitions = 0) {
         this.type = type;
         this.front = front;
@@ -80,6 +104,30 @@ class Card {
         this.tags = tags;
         this.interval = interval;
         this.repetitions = repetitions;
+        this.date = new Date().toISOString();
+    }
+
+    static async SaveToDB(card, currentUserId) {
+        const url = `http://localhost:3000/api/users/${currentUserId}/cards`;
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(card),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const newCard = await response.json();
+            console.log("Card created successfully:", newCard);
+            return newCard;
+        } catch (error) {
+            console.error("Error creating user:", error);
+        }
     }
 }
 
@@ -99,16 +147,18 @@ class App {
     cardsList;
     quill;
     editor;
-    cardSide = 'Front';
+    cardSide = 'front';
     currentCard;
     currentUser;
 
     constructor() {
+        this.cardContent = { type: "simple", front: "", back: "" };
         this.cardsList = this.#getFromStorage('cardsList') || [];
-        this.currentCard = this.#getFromStorage('currentUser') || "";
-        if (this.currentCard === "") this.#isNotLoggedIn.bind(this);
+        this.currentUser = this.#getFromStorage('currentUser') || "";
+        if (this.currentUser == "") {
+            this.#isNotLoggedIn();
+        }
     }
-
 
     #saveToStorage(key, value) {
         localStorage.setItem(key, JSON.stringify(value));
@@ -118,13 +168,21 @@ class App {
         return JSON.parse(localStorage.getItem(key));
     }
 
+    #resetCardContent() {
+        this.cardContent = { type: "simple", front: "", back: "" };
+    }
+
     #showCard() {
         this.currentCard = this.cardContent;
-        frontSideEditor.innerHTML = this.currentCard.Front;
-        backSideEditor.innerHTML = this.currentCard.Back;
+        frontSideEditor.innerHTML = this.currentCard.front;
+        backSideEditor.innerHTML = this.currentCard.back;
     }
 
     #forgotCard() {
+
+    }
+
+    #reviewAgainCard() {
 
     }
 
@@ -134,7 +192,7 @@ class App {
 
     #isNotLoggedIn() {
         sideBarElement.classList.add('d-none');
-        $.querySelector('container').classList.add("grid-temp-col-1");
+        appContainer.classList.add("grid-temp-col-1");
     }
 
     initAuth() {
@@ -145,6 +203,7 @@ class App {
             authBtn = $.querySelector('#form_btn');
             authNoticeParent = $.querySelector('.form_notice');
             authNoticeText = $.querySelector('.form_notice-text');
+            logOutBtn = $.querySelector('.form_logout-btn');
         }
         findCardElements();
 
@@ -153,6 +212,11 @@ class App {
 
         // register and login
         authBtn.addEventListener('click', this.#auth.bind(this));
+        if (this.currentCard !== "") {
+            this.#isLogin();
+        }
+
+        logOutBtn.addEventListener('click', this.#logOut);
     }
 
     #resetAuthForm() {
@@ -170,6 +234,27 @@ class App {
         authNoticeText.textContent = this.#getReverseAuthType();
     }
 
+    #isLogin() {
+        if (this.currentUser == '') return;
+        authTitle.textContent = `Your logged in as user with id:
+        ${this.currentUser}`;
+
+        // logout 
+
+        logOutBtn.classList.remove('d-none');
+        authUserInput.parentNode.innerHTML = '';
+        authPassInput.parentNode.innerHTML = '';
+        authBtn.parentNode.removeChild(authBtn);
+        authNoticeParent.parentNode.removeChild(authNoticeParent);
+        authNoticeText.parentNode.removeChild(authNoticeText);
+
+    }
+
+    #logOut() {
+        localStorage.clear();
+        location.reload();
+    }
+
     async #auth(event) {
         event.preventDefault();
         if (authType === 'register') {
@@ -180,23 +265,28 @@ class App {
         }
         if (authType === 'login') {
             const currentUser = await User.get(authUserInput.value, authPassInput.value);
+            if (currentUser[0] == null) return alert('User or password is wrong || User not found');
             this.#saveToStorage('currentUser', currentUser[0]._id);
+            this.currentUser = this.#getFromStorage('currentUser');
             this.#resetAuthForm();
             alert(`Your logged in successfully 
             User: ${currentUser[0].user}`);
             sideBarElement.classList.remove('d-none');
-            $.querySelector('container').classList.remove("grid-temp-col-1");
+            appContainer.classList.remove("grid-temp-col-1");
+            this.#isLogin();
             return;
         }
     }
 
-    initReview() {
+    async initReview() {
+        this.#resetCardContent();
         // Find Elements
         const findCardElements = () => {
-            cardBackSide = $.querySelector('#flip-card_front');
-            cardFrontSide = $.querySelector('#flip-card_back');
-            reviewForgotBtn = $.querySelector('#flip-card_front');
-            reviewRememberBtn = $.querySelector('#flip-card_back');
+            cardbackSide = $.querySelector('#flip-card_front');
+            cardfrontSide = $.querySelector('#flip-card_back');
+            reviewForgotBtn = $.querySelector('.review-btn_forgot');
+            reviewAgainBtn = $.querySelector('.review-btn_again');
+            reviewRememberBtn = $.querySelector('.review-btn_remember');
         }
         findCardElements();
         // Add Quill editor to page
@@ -218,14 +308,31 @@ class App {
         frontSideEditor = $.querySelector('#flip-card_front').querySelector('.ql-editor');
         backSideEditor = $.querySelector('#flip-card_back').querySelector('.ql-editor');
 
-        this.currentCard = this.cardsList[0];
+        //? Show cards you should review today
+        this.cardsList = await this.#getUserCards();
+        this.cardContent = this.cardsList[0] || { type: 'simple', front: '', back: '' };
+        console.log(this.cardsList);
         this.#showCard();
+
         // Set Events
         reviewForgotBtn.addEventListener('click', this.#forgotCard.bind(this));
-        reviewForgotBtn.addEventListener('click', this.#rememberCard.bind(this));
+        reviewAgainBtn.addEventListener('click', this.#reviewAgainCard.bind(this));
+        reviewRememberBtn.addEventListener('click', this.#rememberCard.bind(this));
+    }
+
+    #UTCToMS = (dateUTC) => new Date(dateUTC).getTime();
+    #currentTimeMS = () => new Date().getTime();
+
+    async #getUserCards() {
+        const cards = await User.getCards(this.currentUser);
+        // Cards should review today or days before today
+        // if card Date < current date time --> you should review it ! 
+        const cardsShouldReviewToday = cards.filter(card => this.#UTCToMS(card.date) < this.#currentTimeMS());
+        return cardsShouldReviewToday;
     }
 
     initAddCard() {
+        this.#resetCardContent();
         // Find Elements
         const findCardElements = () => {
             saveBtn = $.querySelector('.save-card_btn');
@@ -257,9 +364,15 @@ class App {
         radioBtnGroup.addEventListener('click', this.#setCardType.bind(this));
         sideBarElement.addEventListener('click', this.#changeActiveLink.bind(this));
     }
-
     #setCardType() {
-        if (dictationTypeBtn.checked) {
+        if (
+            this.cardSide.toLowerCase() == 'back'
+            &&
+            dictationTypeBtn.checked
+        ) {
+            simpleTypeBtn.checked = true;
+            return alert('Dictation Card only has front Side ! || please switch to simple');
+        } if (dictationTypeBtn.checked) {
             this.cardContent.type = dictationTypeBtn.value;
         } else if (simpleTypeBtn.checked) {
             this.cardContent.type = simpleTypeBtn.value;
@@ -274,7 +387,6 @@ class App {
         // console.log(JSON.stringify(delta));
         // console.log(text);
         // console.log(justHtml);
-
         this.cardContent[this.cardSide] = this.quill.root.innerHTML;
     }
     #clearEditor() {
@@ -285,8 +397,9 @@ class App {
         this.editor.innerHTML = this.cardContent[this.cardSide];
     }
     #flipCard() {
+        if (this.cardContent.type.toLowerCase() === "dictation" && this.cardSide == 'front') return alert('Dictation card just has front !');
         this.#saveContent();
-        this.cardSide === 'Front' ? this.cardSide = 'Back' : this.cardSide = 'Front';
+        this.cardSide === 'front' ? this.cardSide = 'back' : this.cardSide = 'front';
         editorTitle.textContent = `${this.cardSide} Side`;
         editorTitle.classList.toggle('back');
         if (this.cardContent[this.cardSide] != '') {
@@ -295,30 +408,32 @@ class App {
             this.#clearEditor();
         }
     }
-    #saveCard() {
+    async #saveCard() {
         this.#saveContent();
         if (
-            !this.cardContent.Back
-            || !this.cardContent.Front
-            || this.cardContent.Back.length === 0
-            || this.cardContent.Front.length === 0
+            !this.cardContent.back
+            || !this.cardContent.front
+            || this.cardContent.back.length === 0
+            || this.cardContent.front.length === 0
         ) return window.alert('one side of the card is empty fill it !!!');
 
         let newCard;
-        if (this.cardContent.type === 'simple') {
-            newCard = new SimpleCard(this.cardContent.Front, this.cardContent.Back);
-        } else if (this.cardContent.type === 'dictation') {
-            newCard = new DictationCard(this.cardContent.Front, this.cardContent.Back);
+        if (this.cardContent.type.toLowerCase() === 'simple') {
+            newCard = new SimpleCard(this.cardContent.front, this.cardContent.back);
+        } else if (this.cardContent.type.toLowerCase() === 'dictation') {
+            if (
+                this.cardContent.front.includes("<img") ||
+                this.cardContent.back.includes("<img")
+            ) {
+                return alert('Only text allowed in Dictation Type !!!');
+            }
+            newCard = new DictationCard(this.cardContent.front, this.cardContent.back);
         }
-
-        this.cardsList.push(newCard);
-        localStorage.setItem('cardsList', JSON.stringify(this.cardsList));
-
+        console.log(newCard);
+        newCard = await Card.SaveToDB(newCard, this.currentUser);
+        console.log("New card from db :", newCard);
         this.#clearEditor();
-        this.cardContent = { type: 'simple', Front: '', Back: '' };
-
-        console.log(JSON.parse(localStorage.getItem('cardsList')));
-        console.log(this.cardsList);
+        this.cardContent = { type: "simple", front: "", back: "" };
     }
     #changeActiveLink(e) {
         const { target } = e;
