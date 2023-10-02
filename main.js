@@ -22,7 +22,7 @@ let logOutBtn;
 let navLinks = $.querySelectorAll('.nav-link');
 
 // Review
-let cardbackSide, cardfrontSide, frontSideEditor, backSideEditor, reviewForgotBtn, reviewAgainBtn, reviewRememberBtn;
+let cardbackSide, cardfrontSide, frontSideEditor, backSideEditor, reviewForgotBtn, reviewDelBtn, reviewRememberBtn;
 
 class User {
     static async create(user, pass) {
@@ -148,6 +148,27 @@ class Card {
             console.error("Error updating card:", error);
         }
     }
+
+    static async DeleteCard(cardId, currentUserId) {
+        const url = `http://localhost:3000/api/users/${currentUserId}/cards/${cardId}`;
+        try {
+            const response = await fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const deletedCard = await response.json();
+            return deletedCard;
+        } catch (error) {
+            console.error("Error deleting card:", error);
+        }
+    }
 }
 
 class SimpleCard extends Card {
@@ -171,10 +192,10 @@ class App {
     currentUser;
 
     constructor() {
-        this.cardContent = { type: "simple", front: "", back: "", date: "" };
+        this.#resetCardContent();
         this.cardsList = this.#getFromStorage('cardsList') || [];
-        this.currentUser = this.#getFromStorage('currentUser') || "";
-        if (this.currentUser == "") {
+        this.currentUser = this.#getFromStorage('currentUser') || {};
+        if (Object.keys(this.currentUser).length === 0) {
             this.#isNotLoggedIn();
         }
     }
@@ -189,7 +210,12 @@ class App {
         return JSON.parse(localStorage.getItem(key));
     }
     #resetCardContent() {
-        this.cardContent = { type: "simple", front: "", back: "", date: "" };
+        this.cardContent = {
+            type: "simple",
+            front: "",
+            back: "",
+            date: ""
+        };
     }
     #showCard() {
         this.currentCard = this.cardContent;
@@ -198,25 +224,38 @@ class App {
     }
 
     // Update Card
+    #updateReviewCardUI() {
+        this.cardsList.shift();
+        if (this.cardsList[0]) {
+            this.cardContent = this.cardsList[0];
+        } else {
+            this.#resetCardContent();
+        }
+        this.#showCard();
+    }
+
     async #forgotCard() {
         const updatedCard = await Card.UpdateCard(
             this.currentCard._id,
-            this.currentUser,
+            this.currentUser._id,
             {
                 date: this.#currentTimeUTC(),
                 interval: 0,
                 repetitions: 0
             }
         );
-        this.cardsList.shift();
         this.cardsList.push(updatedCard);
-        if(this.cardsList[0]){
-            this.cardContent = this.cardsList[0];
-            this.#showCard();
-        }
+        // update review card UI
+        this.#updateReviewCardUI();
     }
-    #reviewAgainCard() {
-
+    async #reviewDeleteCard() {
+        if (!window.confirm('You wanna to delete card ?')) return;
+        const deletedCard = await Card.DeleteCard(
+            this.currentCard._id,
+            this.currentUser._id
+        );
+        this.#updateReviewCardUI();
+        console.log(Object.keys(deletedCard).length === 0);
     }
     async #rememberCard() {
         // Calc interval
@@ -243,18 +282,15 @@ class App {
 
         await Card.UpdateCard(
             this.currentCard._id,
-            this.currentUser,
+            this.currentUser._id,
             {
                 date: newDate,
                 interval: newInterval,
                 repetitions: + Math.min(this.currentCard.repetitions + 1, 4)
             }
         );
-        this.cardsList.shift();
-        if(this.cardsList[0]){
-            this.cardContent = this.cardsList[0];
-            this.#showCard();
-        }
+        // update review card UI
+        this.#updateReviewCardUI();
     }
     // --------------
     #isNotLoggedIn() {
@@ -297,9 +333,8 @@ class App {
         authNoticeText.textContent = this.#getReverseAuthType();
     }
     #isLogin() {
-        if (this.currentUser == '') return;
-        authTitle.textContent = `Your logged in as user with id:
-        ${this.currentUser}`;
+        if (Object.keys(this.currentUser).length === 0) return;
+        authTitle.textContent = `Hi ${this.currentUser.user}!`;
 
         // logout 
 
@@ -326,7 +361,7 @@ class App {
         if (authType === 'login') {
             const currentUser = await User.get(authUserInput.value, authPassInput.value);
             if (currentUser[0] == null) return alert('User or password is wrong || User not found');
-            this.#saveToStorage('currentUser', currentUser[0]._id);
+            this.#saveToStorage('currentUser', currentUser[0]);
             this.currentUser = this.#getFromStorage('currentUser');
             this.#resetAuthForm();
             alert(`Your logged in successfully 
@@ -344,7 +379,7 @@ class App {
             cardbackSide = $.querySelector('#flip-card_front');
             cardfrontSide = $.querySelector('#flip-card_back');
             reviewForgotBtn = $.querySelector('.review-btn_forgot');
-            reviewAgainBtn = $.querySelector('.review-btn_again');
+            reviewDelBtn = $.querySelector('.review-btn_del');
             reviewRememberBtn = $.querySelector('.review-btn_remember');
         }
         findCardElements();
@@ -375,12 +410,12 @@ class App {
 
         // Set Events
         reviewForgotBtn.addEventListener('click', this.#forgotCard.bind(this));
-        reviewAgainBtn.addEventListener('click', this.#reviewAgainCard.bind(this));
+        reviewDelBtn.addEventListener('click', this.#reviewDeleteCard.bind(this));
         reviewRememberBtn.addEventListener('click', this.#rememberCard.bind(this));
     }
 
     async #getUserCards() {
-        const cards = await User.getCards(this.currentUser);
+        const cards = await User.getCards(this.currentUser._id);
         // Cards should review today or days before today
         // if card Date < current date time --> you should review it ! 
         const cardsShouldReviewToday = cards.filter(card => this.#UTCToMS(card.date) < this.#currentTimeMS());
@@ -477,9 +512,9 @@ class App {
             }
             newCard = new DictationCard(this.cardContent.front, this.cardContent.back);
         }
-        newCard = await Card.SaveToDB(newCard, this.currentUser);
+        newCard = await Card.SaveToDB(newCard, this.currentUser._id);
         this.#clearEditor();
-        this.cardContent = { type: "simple", front: "", back: "", date: "" };
+        this.#resetCardContent();
     }
     #changeActiveLink(e) {
         const { target } = e;

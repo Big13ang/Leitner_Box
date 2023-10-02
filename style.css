@@ -354,19 +354,21 @@ body {
 }
 
 .review-btn_forgot {
-    background-color: rgb(140, 38, 48);
-}
-
-.review-btn_forgot:hover {
-    background-color: rgb(219, 0, 22);
-}
-
-.review-btn_again {
     background-color: #056edf;
 }
 
-.review-btn_again:hover {
+.review-btn_forgot:hover {
     background-color: #258eff;
+}
+
+.review-btn_del {
+    background-color: rgb(140, 38, 48);
+
+}
+
+.review-btn_del:hover {
+    background-color: rgb(219, 0, 22);
+
 }
 
 .review-btn_remember {
