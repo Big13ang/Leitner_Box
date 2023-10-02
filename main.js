@@ -42,7 +42,6 @@ class User {
             }
 
             const createdUser = await response.json();
-            console.log("User created successfully:", createdUser);
             return createdUser;
         } catch (error) {
             console.error("Error creating user:", error);
@@ -121,12 +120,32 @@ class Card {
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-
             const newCard = await response.json();
-            console.log("Card created successfully:", newCard);
             return newCard;
         } catch (error) {
             console.error("Error creating user:", error);
+        }
+    }
+
+    static async UpdateCard(cardId, currentUserId, newData) {
+        const url = `http://localhost:3000/api/users/${currentUserId}/cards/${cardId}`; // Assuming you have cardId
+        try {
+            const response = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newData),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const updatedCard = await response.json();
+            return updatedCard;
+        } catch (error) {
+            console.error("Error updating card:", error);
         }
     }
 }
@@ -152,49 +171,96 @@ class App {
     currentUser;
 
     constructor() {
-        this.cardContent = { type: "simple", front: "", back: "" };
+        this.cardContent = { type: "simple", front: "", back: "", date: "" };
         this.cardsList = this.#getFromStorage('cardsList') || [];
         this.currentUser = this.#getFromStorage('currentUser') || "";
         if (this.currentUser == "") {
             this.#isNotLoggedIn();
         }
     }
+    #UTCToMS = (dateUTC) => new Date(dateUTC).getTime();
+    #currentTimeMS = () => new Date().getTime();
+    #currentTimeUTC = () => new Date().toISOString();
 
     #saveToStorage(key, value) {
         localStorage.setItem(key, JSON.stringify(value));
     }
-
     #getFromStorage(key) {
         return JSON.parse(localStorage.getItem(key));
     }
-
     #resetCardContent() {
-        this.cardContent = { type: "simple", front: "", back: "" };
+        this.cardContent = { type: "simple", front: "", back: "", date: "" };
     }
-
     #showCard() {
         this.currentCard = this.cardContent;
         frontSideEditor.innerHTML = this.currentCard.front;
         backSideEditor.innerHTML = this.currentCard.back;
     }
 
-    #forgotCard() {
-
+    // Update Card
+    async #forgotCard() {
+        const updatedCard = await Card.UpdateCard(
+            this.currentCard._id,
+            this.currentUser,
+            {
+                date: this.#currentTimeUTC(),
+                interval: 0,
+                repetitions: 0
+            }
+        );
+        this.cardsList.shift();
+        this.cardsList.push(updatedCard);
+        if(this.cardsList[0]){
+            this.cardContent = this.cardsList[0];
+            this.#showCard();
+        }
     }
-
     #reviewAgainCard() {
 
     }
+    async #rememberCard() {
+        // Calc interval
+        let newInterval;
+        switch (this.currentCard.repetitions) {
+            case 0:
+                newInterval = 1;
+                break;
+            case 1:
+                newInterval = 3;
+                break;
+            case 2:
+                newInterval = 7;
+                break;
+            case 3:
+                newInterval = 14;
+                break;
+            case 4:
+                newInterval = 30;
+                break;
+        }
+        // calc the next review time
+        let newDate = new Date(new Date().getTime() + newInterval * 24 * 60 * 60 * 1000).toISOString();
 
-    #rememberCard() {
-
+        await Card.UpdateCard(
+            this.currentCard._id,
+            this.currentUser,
+            {
+                date: newDate,
+                interval: newInterval,
+                repetitions: + Math.min(this.currentCard.repetitions + 1, 4)
+            }
+        );
+        this.cardsList.shift();
+        if(this.cardsList[0]){
+            this.cardContent = this.cardsList[0];
+            this.#showCard();
+        }
     }
-
+    // --------------
     #isNotLoggedIn() {
         sideBarElement.classList.add('d-none');
         appContainer.classList.add("grid-temp-col-1");
     }
-
     initAuth() {
         const findCardElements = () => {
             authTitle = $.querySelector('.form_title');
@@ -218,22 +284,18 @@ class App {
 
         logOutBtn.addEventListener('click', this.#logOut);
     }
-
     #resetAuthForm() {
         authPassInput.value = authUserInput.value = "";
     }
-
     #getReverseAuthType() {
         return authType === 'login' ? 'register' : 'login';
     }
-
     #changeAuthType() {
         authType = this.#getReverseAuthType();
         authTitle.textContent = authType;
         authBtn.textContent = authType;
         authNoticeText.textContent = this.#getReverseAuthType();
     }
-
     #isLogin() {
         if (this.currentUser == '') return;
         authTitle.textContent = `Your logged in as user with id:
@@ -249,12 +311,10 @@ class App {
         authNoticeText.parentNode.removeChild(authNoticeText);
 
     }
-
     #logOut() {
         localStorage.clear();
         location.reload();
     }
-
     async #auth(event) {
         event.preventDefault();
         if (authType === 'register') {
@@ -277,7 +337,6 @@ class App {
             return;
         }
     }
-
     async initReview() {
         this.#resetCardContent();
         // Find Elements
@@ -310,8 +369,8 @@ class App {
 
         //? Show cards you should review today
         this.cardsList = await this.#getUserCards();
-        this.cardContent = this.cardsList[0] || { type: 'simple', front: '', back: '' };
-        console.log(this.cardsList);
+        this.cardContent = this.cardsList[0] || { type: 'simple', front: '', back: '', date: "" };
+
         this.#showCard();
 
         // Set Events
@@ -320,9 +379,6 @@ class App {
         reviewRememberBtn.addEventListener('click', this.#rememberCard.bind(this));
     }
 
-    #UTCToMS = (dateUTC) => new Date(dateUTC).getTime();
-    #currentTimeMS = () => new Date().getTime();
-
     async #getUserCards() {
         const cards = await User.getCards(this.currentUser);
         // Cards should review today or days before today
@@ -330,7 +386,6 @@ class App {
         const cardsShouldReviewToday = cards.filter(card => this.#UTCToMS(card.date) < this.#currentTimeMS());
         return cardsShouldReviewToday;
     }
-
     initAddCard() {
         this.#resetCardContent();
         // Find Elements
@@ -380,13 +435,6 @@ class App {
     }
     #saveContent() {
         if (this.editor.innerHTML === '<p><br></p>') return;
-
-        // let delta = this.quill.getContents();
-        // let text = this.quill.getText();
-        // let justHtml = this.quill.root.innerHTML;
-        // console.log(JSON.stringify(delta));
-        // console.log(text);
-        // console.log(justHtml);
         this.cardContent[this.cardSide] = this.quill.root.innerHTML;
     }
     #clearEditor() {
@@ -429,11 +477,9 @@ class App {
             }
             newCard = new DictationCard(this.cardContent.front, this.cardContent.back);
         }
-        console.log(newCard);
         newCard = await Card.SaveToDB(newCard, this.currentUser);
-        console.log("New card from db :", newCard);
         this.#clearEditor();
-        this.cardContent = { type: "simple", front: "", back: "" };
+        this.cardContent = { type: "simple", front: "", back: "", date: "" };
     }
     #changeActiveLink(e) {
         const { target } = e;
