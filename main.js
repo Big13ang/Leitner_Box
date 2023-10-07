@@ -180,6 +180,80 @@ class SimpleCard extends Card {
 class DictationCard extends Card {
     constructor(front, back, tags) {
         super('Dictation', front, back, tags);
+        this.back = front;
+        this.front = this.#generateDictaion(front);
+    }
+    #randomInt = (min, max) =>
+        Math.floor(Math.random() * (max - min) + 1) + min;
+
+    #removeTags = text => {
+        let cleanText = text
+            .replaceAll('<p>', '')
+            .replaceAll('</p>', '')
+            .replaceAll('<b>', '')
+            .replaceAll(',', '')
+            .replaceAll('.', '');
+        return cleanText;
+    }
+
+    #convertTextToArray = text => {
+        let array = text.split(' ');
+        return array;
+    }
+
+    #IsItAword = word => {
+        let realWord = word.replaceAll(`'s`, '');
+        if (realWord.length < 4) return false;
+        return true;
+    }
+
+    #replaceWithAsterisk = (inputString, indexToReplace) => {
+        if (indexToReplace >= 0 && indexToReplace < inputString.length) {
+            let strArray = inputString.split('');
+            strArray[indexToReplace] = '*';
+            let replacedString = strArray.join('');
+            return replacedString;
+        } else {
+            return "Invalid index.";
+        }
+    }
+
+    #handleReplacement = word => {
+        let newWord = "";
+        let randomIndex1;
+
+        switch (word.length) {
+            case 4:
+                randomIndex1 = this.#randomInt(1, 2);
+                break;
+            case 5:
+                randomIndex1 = this.#randomInt(1, 3);
+                break;
+            case 6:
+                randomIndex1 = this.#randomInt(1, word.length - 2)
+                break;
+            case 7:
+                randomIndex1 = this.#randomInt(1, word.length - 2);
+                break;
+            default:
+                randomIndex1 = this.#randomInt(1, word.length - 2);
+                break;
+        }
+
+        newWord = this.#replaceWithAsterisk(word, randomIndex1);
+        return newWord;
+    }
+
+    #generateDictaion = text => {
+        let cleanText = this.#removeTags(text);
+
+        let wordsArray = this.#convertTextToArray(cleanText);
+
+        let dictationText = wordsArray.map(word => {
+            if (!this.#IsItAword(word)) return word;
+            return this.#handleReplacement(word);
+        }).join(' ');
+        return dictationText;
     }
 }
 
@@ -192,6 +266,7 @@ class App {
     currentUser;
 
     constructor() {
+        sideBarElement.addEventListener('click', this.#changeActiveLink.bind(this));
         this.#resetCardContent();
         this.cardsList = this.#getFromStorage('cardsList') || [];
         this.currentUser = this.#getFromStorage('currentUser') || {};
@@ -413,7 +488,6 @@ class App {
         reviewDelBtn.addEventListener('click', this.#reviewDeleteCard.bind(this));
         reviewRememberBtn.addEventListener('click', this.#rememberCard.bind(this));
     }
-
     async #getUserCards() {
         const cards = await User.getCards(this.currentUser._id);
         // Cards should review today or days before today
@@ -452,7 +526,6 @@ class App {
         flipSideBtn.addEventListener('click', this.#flipCard.bind(this));
         saveBtn.addEventListener('click', this.#saveCard.bind(this));
         radioBtnGroup.addEventListener('click', this.#setCardType.bind(this));
-        sideBarElement.addEventListener('click', this.#changeActiveLink.bind(this));
     }
     #setCardType() {
         if (
@@ -494,11 +567,22 @@ class App {
     async #saveCard() {
         this.#saveContent();
         if (
-            !this.cardContent.back
-            || !this.cardContent.front
-            || this.cardContent.back.length === 0
-            || this.cardContent.front.length === 0
-        ) return window.alert('one side of the card is empty fill it !!!');
+            (!this.cardContent.back
+                || !this.cardContent.front
+                || this.cardContent.back.length === 0
+                || this.cardContent.front.length === 0)
+            &&
+            (this.cardContent.type.toLowerCase() === 'simple')
+        ) {
+            return window.alert('one side of the card is empty fill it !!!')
+        } else if (
+            (!this.cardContent.front
+                || this.cardContent.front.length === 0)
+            &&
+            (this.cardContent.type.toLowerCase() === 'dictation')
+        ) {
+            return window.alert('Front Can not be empty fill it !!!')
+        }
 
         let newCard;
         if (this.cardContent.type.toLowerCase() === 'simple') {
@@ -513,14 +597,17 @@ class App {
             newCard = new DictationCard(this.cardContent.front, this.cardContent.back);
         }
         newCard = await Card.SaveToDB(newCard, this.currentUser._id);
+        console.log(newCard);
         this.#clearEditor();
         this.#resetCardContent();
     }
     #changeActiveLink(e) {
         const { target } = e;
         if (!target.matches(".nav-link")) return;
-        e.preventDefault()
+        e.preventDefault();
+        console.log(navLinks);
         navLinks.forEach(link => link.classList.remove('nav-link__active'));
+        console.log(target);     
         target.classList.add('nav-link__active');
     }
 }
